@@ -202,9 +202,9 @@ bool ViewProviderAddSub::isPreviewMode() const
 }
 
 void ViewProviderAddSub::setPreviewDisplayMode(bool onoff) {
-    Gui::SoFCSwitch *fcSwitch =  nullptr;
-    if (pcModeSwitch->isOfType(Gui::SoFCSwitch::getClassTypeId()))
-        fcSwitch = static_cast<Gui::SoFCSwitch*>(pcModeSwitch);
+    SoFCSwitch *fcSwitch =  nullptr;
+    if (pcModeSwitch->isOfType(SoFCSwitch::getClassTypeId()))
+        fcSwitch = static_cast<SoFCSwitch*>(pcModeSwitch);
 
     if (onoff) {
         checkAddSubColor();
@@ -220,10 +220,10 @@ void ViewProviderAddSub::setPreviewDisplayMode(bool onoff) {
             // visible. See SoFCSwitch documentation for more details.
             auto baseVp = Gui::Application::Instance->getViewProvider(base);
             if (baseVp && baseVp->getModeSwitch()
-                       && baseVp->getModeSwitch()->isOfType(Gui::SoFCSwitch::getClassTypeId()))
+                       && baseVp->getModeSwitch()->isOfType(SoFCSwitch::getClassTypeId()))
             {
                 base->Visibility.setValue(true);
-                auto baseSwitch = static_cast<Gui::SoFCSwitch*>(baseVp->getModeSwitch());
+                auto baseSwitch = static_cast<SoFCSwitch*>(baseVp->getModeSwitch());
                 baseSwitch->addChild(previewGroup);
                 baseTail = baseSwitch->tailChild.getValue();
                 baseSwitch->tailChild = baseSwitch->getNumChildren()-1;
@@ -236,10 +236,10 @@ void ViewProviderAddSub::setPreviewDisplayMode(bool onoff) {
         if (base) {
             auto baseVp = Gui::Application::Instance->getViewProvider(base);
             if (baseVp && baseVp->getModeSwitch()
-                       && baseVp->getModeSwitch()->isOfType(Gui::SoFCSwitch::getClassTypeId()))
+                       && baseVp->getModeSwitch()->isOfType(SoFCSwitch::getClassTypeId()))
             {
                 base->Visibility.setValue(false);
-                auto baseSwitch = static_cast<Gui::SoFCSwitch*>(baseVp->getModeSwitch());
+                auto baseSwitch = static_cast<SoFCSwitch*>(baseVp->getModeSwitch());
                 int idx = baseSwitch->findChild(previewGroup);
                 if (idx >= 0)
                     baseSwitch->removeChild(idx);

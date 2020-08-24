@@ -387,7 +387,7 @@ void SoBrepFaceSet::buildPartIndexCache() {
 void SoBrepFaceSet::doAction(SoAction* action)
 {
     if (Gui::SoFCSelectionRoot::handleSelectionAction(
-                action, this, Gui::SoFCDetail::Face, selContext, selCounter))
+                action, this, SoFCDetail::Face, selContext, selCounter))
         return;
 
     if (action->getTypeId() == Gui::SoVRMLAction::getClassTypeId()) {
@@ -897,7 +897,7 @@ int SoBrepFaceSet::overrideMaterialBinding(
     unsigned int shapestyleflags = SoShapeStyleElement::get(state)->getFlags();
 
     int pushed = 0;
-    auto dispModeElement = Gui::SoFCDisplayModeElement::getInstance(state);
+    auto dispModeElement = SoFCDisplayModeElement::getInstance(state);
     if (dispModeElement->getTransparency() != 0.0 || dispModeElement->getFaceColor()) {
 
         overrideTransparency = dispModeElement->getTransparency();
@@ -1509,6 +1509,7 @@ void SoBrepFaceSet::generatePrimitivesRange(SoAction * action, int pstart, int f
     SoPointDetail pointDetail;
     SoFaceDetail faceDetail;
     faceDetail.setFaceIndex(fstart);
+    faceDetail.setPartIndex(pstart);
 
     vertex.setDetail(&pointDetail);
 
@@ -1529,6 +1530,7 @@ void SoBrepFaceSet::generatePrimitivesRange(SoAction * action, int pstart, int f
             matnr++;
         else if (mbind == PER_PART_INDEXED)
             mindices++;
+        faceDetail.incPartIndex();
     }
 
     while (viptr + 2 < viendptr) {
@@ -1630,8 +1632,10 @@ void SoBrepFaceSet::generatePrimitivesRange(SoAction * action, int pstart, int f
                     matnr++;
                 else if (mbind == PER_PART_INDEXED)
                     mindices++;
+                faceDetail.incPartIndex();
             }
             trinr = 0;
+            faceDetail.incPartIndex();
         }
     }
     if (mode != POLYGON) this->endShape();

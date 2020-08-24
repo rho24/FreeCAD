@@ -20,49 +20,65 @@
  *                                                                          *
  ****************************************************************************/
 
-#ifndef PARTGUI_ViewProviderWrap_H
-#define PARTGUI_ViewProviderWrap_H
+#ifndef GUI_SOFCRENDERCACHEMANAGER_H
+#define GUI_SOFCRENDERCACHEMANAGER_H
 
-#include "ViewProviderAddSub.h"
+#include <map>
+#include "../InventorBase.h"
 
-class SoFCDisplayMode;
+class SoGLRenderAction;
+class SoGroup;
+class SoFCRenderCache;
+class SoFCRenderCacheManagerP;
+class SoPath;
+class SoDetail;
 
-namespace PartDesignGui {
-
-class PartDesignGuiExport ViewProviderWrap : public ViewProviderAddSub
+class GuiExport SoFCRenderCacheManager
 {
-    PROPERTY_HEADER_WITH_OVERRIDE(PartDesignGui::ViewProviderWrap);
-    typedef PartDesignGui::ViewProviderAddSub inherited;
-
 public:
-    /// constructor
-    ViewProviderWrap();
-    /// destructor
-    virtual ~ViewProviderWrap();
-    virtual QIcon getIcon() const override;
-    virtual void updateData(const App::Property*) override;
-    virtual void onChanged(const App::Property* prop) override;
-    virtual std::vector<App::DocumentObject*> claimChildren(void) const override;
-    virtual std::vector<App::DocumentObject*> claimChildren3D(void) const override;
-    virtual SoGroup* getChildRoot(void) const override;
-    virtual Gui::ViewProvider * startEditing(int ModNum) override;
-    virtual bool doubleClicked() override;
-    virtual void setupContextMenu(QMenu*, QObject*, const char*) override;
-    virtual bool getDetailPath(const char *subname,
-            SoFullPath *pPath, bool append, SoDetail *&det) const override;
+  SoFCRenderCacheManager();
+  virtual ~SoFCRenderCacheManager();
 
-protected:
-    Gui::ViewProviderDocumentObject * getWrappedView() const;
-    virtual void updateAddSubShapeIndicator() override;
-    virtual PartGui::ViewProviderPart * getAddSubView() override;
-    virtual void setAddSubColor(const App::Color &color, float t) override;
+  void render(SoGLRenderAction *action);
+  void clear();
+
+  void setHighlight(SoPath * path, const SoDetail * detail, uint32_t color, bool ontop = false);
+
+  void clearHighlight();
+
+  void addSelection(const std::string & key,
+                    const std::string & element,
+                    SoPath * path,
+                    const SoDetail * detail,
+                    uint32_t color,
+                    bool ontop = false,
+                    bool alt = false);
+
+  void addSelection(const std::string & key,
+                    const std::string & element,
+                    SoNode * node,
+                    uint32_t color,
+                    bool ontop = false,
+                    bool alt = false);
+
+  void removeSelection(const std::string & key,
+                       const std::string & element,
+                       bool alt = false);
+
+  void clearSelection(bool alt = false);
+
+  bool isOnTop(const std::string & key);
+
+  const std::map<int, SoPath*> & getSelectionPaths() const;
+
+  void getBoundingBox(SbBox3f & bbox) const;
+
+  SbFCUniqueId getSceneNodeId() const;
 
 private:
-    Gui::CoinPtr<SoFCDisplayMode> dispModeOverride;
-    Gui::CoinPtr<SoGroup> pcGroupChildren;
+  friend class SoFCRenderCacheManagerP;
+  SoFCRenderCacheManagerP * pimpl;
 };
 
-} // namespace PartDesignGui
-
-
-#endif // PARTGUI_ViewProviderWrap_H
+#endif // GUI_SOFCRENDERCACHEMANAGER_H 
+// vim: noai:ts=2:sw=2
