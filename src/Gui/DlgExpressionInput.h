@@ -75,10 +75,13 @@ protected:
     void closeEvent(QCloseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
     void mousePressEvent(QMouseEvent*);
+    void mouseMoveEvent(QMouseEvent*);
+    void paintEvent(QPaintEvent*);
 
     void adjustPosition();
     void adjustExpressionSize();
     void onClose();
+    int hitTest(const QPoint &point);
 
 private Q_SLOTS:
     void textChanged();
@@ -101,11 +104,13 @@ private:
     QString colorError;
     QString colorWarning;
 
-    int minimumWidth;
     bool adjustingPosition = false;
     bool noBackground;
     bool leftAligned = true;
     bool adjustingExpressionSize = false;
+    int dragging = 0;
+    QPoint lastPos;
+    QSize minSize;
 
     App::ExpressionFunctionCallDisabler exprFuncDisabler;
 };
