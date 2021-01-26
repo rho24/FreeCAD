@@ -49,6 +49,8 @@ namespace Gui {
 
 namespace Dialog {
 
+class ProxyWidget;
+
 class GuiExport DlgExpressionInput : public QDialog
 {
     Q_OBJECT
@@ -76,7 +78,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent*);
     void mousePressEvent(QMouseEvent*);
     void mouseMoveEvent(QMouseEvent*);
-    void paintEvent(QPaintEvent*);
+    void resizeEvent(QResizeEvent *);
 
     void adjustPosition();
     void adjustExpressionSize();
@@ -111,8 +113,47 @@ private:
     int dragging = 0;
     QPoint lastPos;
     QSize minSize;
+    ProxyWidget *proxy;
+    friend class ProxyWidget;
 
     App::ExpressionFunctionCallDisabler exprFuncDisabler;
+};
+
+class ProxyWidget : public QWidget
+{
+public:
+    ProxyWidget(DlgExpressionInput *parent)
+        :QWidget(parent), master(parent)
+    {
+        setAttribute(Qt::WA_NoSystemBackground, true);
+        setAttribute(Qt::WA_TranslucentBackground, true);
+        setMouseTracking(true);
+    }
+
+    void paintEvent(QPaintEvent *) {
+        QColor backgroundColor(0,0,0);
+        backgroundColor.setAlpha(100);
+        QPainter painter(this);
+        painter.fillRect(rect(),backgroundColor);
+    }
+
+    void mousePressEvent(QMouseEvent* ev)
+    {
+        master->mousePressEvent(ev);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *ev)
+    {
+        master->mouseReleaseEvent(ev);
+    }
+
+    void mouseMoveEvent(QMouseEvent *ev)
+    {
+        master->mouseMoveEvent(ev);
+    }
+
+private:
+    DlgExpressionInput *master;
 };
 
 }

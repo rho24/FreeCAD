@@ -60,6 +60,11 @@ DlgExpressionInput::DlgExpressionInput(const App::ObjectIdentifier & _path,
     // Setup UI
     ui->setupUi(this);
 
+    proxy = new ProxyWidget(this);
+    proxy->show();
+    proxy->lower();
+    proxy->resize(this->rect().size());
+
     // Connect signal(s)
     connect(ui->expression, SIGNAL(textChanged()), this, SLOT(textChanged()));
     connect(ui->discardBtn, SIGNAL(clicked()), this, SLOT(setDiscarded()));
@@ -183,15 +188,10 @@ DlgExpressionInput::~DlgExpressionInput()
     delete ui;
 }
 
-void DlgExpressionInput::paintEvent(QPaintEvent *ev)
+void DlgExpressionInput::resizeEvent(QResizeEvent *ev)
 {
-    if (noBackground) {
-        QColor backgroundColor(0,0,0);
-        backgroundColor.setAlpha(1);
-        QPainter painter(this);
-        painter.fillRect(rect(),backgroundColor);
-    } else
-        QDialog::paintEvent(ev);
+    proxy->resize(this->rect().size());
+    QDialog::resizeEvent(ev);
 }
 
 void DlgExpressionInput::textChanged()
