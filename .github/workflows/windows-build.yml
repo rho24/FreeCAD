@@ -24,7 +24,7 @@ jobs:
       run: |
         mkdir $FREECAD_LIBPACK_DIR \
         && cd $FREECAD_LIBPACK_DIR \
-        && wget $FREECAD_LIBPACK_DOWNLOAD_URL -O $FREECAD_LIBPACK_DIR/libpack.7z \
+        && curl -o libpack.7z $FREECAD_LIBPACK_DOWNLOAD_URL \
         && 7z x -y libpack.7z \
         && rm libpack.7z \
         && mv ./*/* .
