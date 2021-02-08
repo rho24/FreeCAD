@@ -5,6 +5,8 @@ on: [push]
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  FREECAD_LIBPACK_DOWNLOAD_URL: https://github.com/apeltauer/FreeCAD/releases/download/LibPack_12.4.2/FreeCADLibs_12.4.2_x64_VC17_bin_release.7z
+  FREECAD_LIBPACK_DIR: ${{github.workspace}}/.github/workflows/windows-libpack
 
 jobs:
   build:
@@ -16,6 +18,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Get libpack
+      shell: bash
+      run: |
+        mkdir $FREECAD_LIBPACK_DIR \
+        && cd $FREECAD_LIBPACK_DIR \
+        && wget $FREECAD_LIBPACK_DOWNLOAD_URL -O $FREECAD_LIBPACK_DIR/libpack.7z \
+        && 7z x -y libpack.7z \
+        && rm libpack.7z \
+        && mv ./*/* .
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
