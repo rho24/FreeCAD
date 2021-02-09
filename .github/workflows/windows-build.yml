@@ -3,64 +3,45 @@ name: Windows build
 on: [push, workflow_dispatch]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   FREECAD_LIBPACK_DOWNLOAD_URL: https://github.com/apeltauer/FreeCAD/releases/download/LibPack_12.4.2/FreeCADLibs_12.4.2_x64_VC17.7z
   FREECAD_LIBPACK_DIR: ${{github.workspace}}\.github\workflows\windows-libpack
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Get libpack
-      #   shell: powershell
-      #   run: |
-      #     Set-PSDebug -Trace 1
-      #     $ErrorActionPreference = "Stop"
-      #     $ProgressPreference = 'SilentlyContinue'
-      #     New-Item -ItemType Directory -ea 0 $env:FREECAD_LIBPACK_DIR
-      #     cd $env:FREECAD_LIBPACK_DIR
-      #     Invoke-WebRequest $env:FREECAD_LIBPACK_DOWNLOAD_URL -OutFile libpack.7z
-      #     7z x -y libpack.7z
-      #     rm libpack.7z
-      #     mv .\*\* .
-      #     rm Free*
-      #     ls $env:FREECAD_LIBPACK_DIR
-
-      # - name: Create Build Environment
-      #   shell: powershell
-      #   # Some projects don't allow in-source building, so create a separate build directory
-      #   # We'll use this as our working directory for all subsequent commands
-      #   run: cmake -E make_directory ${{github.workspace}}\build
-
-      # - name: Configure CMake
-      #   shell: powershell
-      #   # Use a bash shell so we can use the same syntax for environment variable
-      #   # access regardless of the host operating system
-      #   working-directory: ${{github.workspace}}\build
-      #   # Note the current convention is to use the -S and -B options here to specify source
-      #   # and build directories, but this is only available with CMake 3.13 and higher.
-      #   # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      #   run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
-
-      # - name: Build
-      #   shell: powershell
-      #   working-directory: ${{github.workspace}}\build
-      #   # Execute the build.  You can specify a specific target with "--target <NAME>"
-      #   run: cmake --build . --config $env:BUILD_TYPE
-
-      - name: Temp build -OutFile
+      - name: Get libpack
         shell: powershell
         run: |
-          mkdir ${{github.workspace}}\build
-          echo "Hello" > ${{github.workspace}}\build\test.txt
+          Set-PSDebug -Trace 1
+          $ErrorActionPreference = "Stop"
+          $ProgressPreference = 'SilentlyContinue'
+          New-Item -ItemType Directory -ea 0 $env:FREECAD_LIBPACK_DIR
+          cd $env:FREECAD_LIBPACK_DIR
+          Invoke-WebRequest $env:FREECAD_LIBPACK_DOWNLOAD_URL -OutFile libpack.7z
+          7z x -y libpack.7z
+          rm libpack.7z
+          mv .\*\* .
+          rm Free*
+          ls $env:FREECAD_LIBPACK_DIR
+
+      - name: Create Build Environment
+        shell: powershell
+        run: cmake -E make_directory ${{github.workspace}}\build
+
+      - name: Configure CMake
+        shell: powershell
+        working-directory: ${{github.workspace}}\build
+        run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
+
+      - name: Build
+        shell: powershell
+        working-directory: ${{github.workspace}}\build
+        run: cmake --build . --config $env:BUILD_TYPE
 
       - name: Zip assets
         shell: powershell
@@ -71,14 +52,14 @@ jobs:
         id: create_release
         uses: zendesk/action-create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}\build\release.zip
           asset_name: FreeCad-windows-${{ steps.create_release.outputs.current_tag }}.zip
           asset_content_type: application/zip
