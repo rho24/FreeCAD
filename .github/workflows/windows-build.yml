@@ -6,7 +6,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   FREECAD_LIBPACK_DOWNLOAD_URL: https://github.com/apeltauer/FreeCAD/releases/download/LibPack_12.4.2/FreeCADLibs_12.4.2_x64_VC17_bin_release.7z
-  FREECAD_LIBPACK_DIR: ${{github.workspace}}\.github\workflows\windows-libpack\bin
+  FREECAD_LIBPACK_DIR: ${{github.workspace}}\.github\workflows\windows-libpack
 
 jobs:
   build:
@@ -23,14 +23,15 @@ jobs:
       shell: powershell
       run: |
         $ErrorActionPreference = "Stop"
+        Set-PSDebug -Trace 1
         New-Item -ItemType Directory -ea 0 $env:FREECAD_LIBPACK_DIR
-        cd $env:FREECAD_LIBPACK_DIR\..
-        rm .\bin
+        cd $env:FREECAD_LIBPACK_DIR
         Invoke-WebRequest $env:FREECAD_LIBPACK_DOWNLOAD_URL -OutFile libpack.7z
         7z x -y libpack.7z
         rm libpack.7z
         mv .\*\* .
         rm Free*
+        ls
 
     - name: Create Build Environment
       shell: powershell
