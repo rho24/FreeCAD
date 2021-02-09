@@ -22,8 +22,9 @@ jobs:
     - name: Get libpack
       shell: powershell
       run: |
-        $ErrorActionPreference = "Stop"
         Set-PSDebug -Trace 1
+        $ErrorActionPreference = "Stop"
+        $ProgressPreference = 'SilentlyContinue'
         New-Item -ItemType Directory -ea 0 $env:FREECAD_LIBPACK_DIR
         cd $env:FREECAD_LIBPACK_DIR
         Invoke-WebRequest $env:FREECAD_LIBPACK_DOWNLOAD_URL -OutFile libpack.7z
@@ -31,7 +32,7 @@ jobs:
         rm libpack.7z
         mv .\*\* .
         rm Free*
-        ls
+        ls $env:FREECAD_LIBPACK_DIR
 
     - name: Create Build Environment
       shell: powershell
@@ -47,7 +48,11 @@ jobs:
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
+      run: |
+        Set-PSDebug -Trace 1
+        pwd
+        ls $env:FREECAD_LIBPACK_DIR
+        cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
 
     - name: Build
       shell: powershell
