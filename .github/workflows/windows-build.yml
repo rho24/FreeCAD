@@ -36,7 +36,13 @@ jobs:
       - name: Configure CMake
         shell: powershell
         working-directory: ${{github.workspace}}\build
-        run: cmake $env:GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
+        run: |
+          cmake $env:GITHUB_WORKSPACE `
+            -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE `
+            -DFREECAD_COPY_DEPEND_DIRS_TO_BUILD=ON `
+            -DFREECAD_COPY_LIBPACK_BIN_TO_BUILD=ON `
+            -DFREECAD_COPY_PLUGINS_BIN_TO_BUILD=ON `
+            -DFREECAD_RELEASE_PDB=OFF
 
       - name: Build
         shell: powershell
@@ -51,7 +57,7 @@ jobs:
       - name: Zip assets
         shell: powershell
         working-directory: ${{github.workspace}}\build
-        run: 7z a release.zip ./bin
+        run: 7z a release.zip ./bin ./data ./Ext ./lib ./Mod ./resources ./translations
 
       - name: Create Release
         id: create_release
